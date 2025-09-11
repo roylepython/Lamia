@@ -11,7 +11,6 @@ Complete MedusaServ authentication system with native Lamia processing, IP white
 ## Features
 
 ### ✅ Enhanced Security
-- **IP Whitelisting**: 72.14.201.65 specifically authorized
 - **ICEWALL Security System**: Military-grade fortress with biohazard control
 - **Session-based Authentication**: Secure cookie management
 - **Access Control**: 403 Forbidden for non-whitelisted IPs
