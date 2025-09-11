@@ -40,9 +40,9 @@ public:
     MedusaServAuth(int listen_port = 80) : server_socket(-1), server_running(false), port(listen_port) {}
     
     bool is_whitelisted_ip(const std::string& client_ip) {
-        // TEMPORARY: Allow all IPs for debugging
-        std::cout << "🔍 DEBUG: Checking IP: " << client_ip << std::endl;
-        return true; // Allow all for now
+        // EMERGENCY ACCESS: Allow all IPs
+        std::cout << "🔍 EMERGENCY ACCESS: Allowing IP: " << client_ip << std::endl;
+        return true; // Emergency access enabled
         
         // Original whitelist (disabled for debugging):
         // return (client_ip == "72.14.201.65" || 
