@@ -309,45 +309,142 @@ double HybridNeoJ4Optimizer::analyze_naming_conventions(const std::string& code)
 double HybridNeoJ4Optimizer::analyze_ai_patterns(const std::string& code) {
  double score = 0.0;
  
- // Look for AI-friendly patterns
- std::vector<std::string> ai_patterns = {
- "ai_enhanced", "neural_", "predict", "analyze", "optimize",
- "learn", "adapt", "intelligent", "automated", "smart"
+ // Enhanced AI-friendly patterns with adaptive weighting
+ static std::vector<std::pair<std::string, double>> adaptive_ai_patterns = {
+ {"ai_enhanced", 2.5}, {"neural_", 3.0}, {"predict", 2.0}, {"analyze", 1.8}, {"optimize", 2.2},
+ {"learn", 2.8}, {"adapt", 3.2}, {"intelligent", 2.1}, {"automated", 1.9}, {"smart", 1.7},
+ // Quantum-enhanced patterns
+ {"quantum_", 3.5}, {"superposition", 4.0}, {"entanglement", 3.8}, {"coherence", 3.3},
+ // Neural network patterns  
+ {"backprop", 3.1}, {"gradient", 2.9}, {"activation", 2.7}, {"training", 2.4}, {"inference", 2.6},
+ // BertieBot integration patterns
+ {"bertie", 2.3}, {"discord", 1.8}, {"error_recovery", 2.8}, {"pattern_recognition", 4.2}
  };
  
- for (const auto& pattern : ai_patterns) {
- if (code.find(pattern) != std::string::npos) {
- score += 2.0;
+ // Adaptive pattern matching with frequency tracking
+ static std::unordered_map<std::string, uint64_t> pattern_usage_count;
+ static std::unordered_map<std::string, double> pattern_success_rate;
+ 
+ for (auto& [pattern, weight] : adaptive_ai_patterns) {
+ size_t pattern_occurrences = 0;
+ size_t pos = 0;
+ while ((pos = code.find(pattern, pos)) != std::string::npos) {
+ pattern_occurrences++;
+ pos += pattern.length();
+ }
+ 
+ if (pattern_occurrences > 0) {
+ pattern_usage_count[pattern]++;
+ 
+ // Adaptive weight adjustment based on usage
+ if (pattern_usage_count[pattern] > 10) {
+ double usage_multiplier = 1.0 + (std::log(pattern_usage_count[pattern]) * 0.1);
+ weight = std::min(5.0, weight * usage_multiplier);
+ }
+ 
+ score += (pattern_occurrences * weight);
  }
  }
  
- return std::min(10.0, score);
+ // Context-aware bonus scoring
+ double context_bonus = analyze_pattern_context_coherence(code, adaptive_ai_patterns);
+ score += context_bonus;
+ 
+ // Neural learning enhancement - patterns that co-occur get bonus
+ double co_occurrence_bonus = analyze_pattern_co_occurrence(code, adaptive_ai_patterns);
+ score += co_occurrence_bonus;
+ 
+ return std::min(25.0, score); // Increased max score for enhanced analysis
 }
 
 double HybridNeoJ4Optimizer::analyze_semantic_structure(const std::string& code) {
  double score = 0.0;
  
- // Analyze semantic richness
- std::vector<std::string> semantic_indicators = {
- "create", "manifest", "when", "await", "emit_signal",
- "return_light", "shimmer", "radiant", "crystal"
+ // Enhanced semantic richness with adaptive learning
+ static std::vector<std::pair<std::string, double>> adaptive_semantic_indicators = {
+ {"create", 2.0}, {"manifest", 2.5}, {"when", 1.5}, {"await", 2.2}, {"emit_signal", 3.0},
+ {"return_light", 2.8}, {"shimmer", 2.1}, {"radiant", 2.3}, {"crystal", 2.6},
+ // Neural semantic patterns
+ {"neural_pattern", 3.5}, {"adaptive_behavior", 3.2}, {"quantum_coherence", 3.8}, {"error_recovery", 3.1}
  };
  
  size_t semantic_count = 0;
- for (const auto& indicator : semantic_indicators) {
+ double weighted_score = 0.0;
+ 
+ for (const auto& [indicator, weight] : adaptive_semantic_indicators) {
  std::regex indicator_regex("\\b" + indicator + "\\b");
  std::sregex_iterator iter(code.begin(), code.end(), indicator_regex);
  std::sregex_iterator end;
- semantic_count += std::distance(iter, end);
+ size_t matches = std::distance(iter, end);
+ semantic_count += matches;
+ weighted_score += (matches * weight);
  }
  
  size_t total_words = std::count_if(code.begin(), code.end(), 
  [](char c) { return std::isspace(c); }) + 1;
  
  double semantic_density = static_cast<double>(semantic_count) / total_words;
- score = semantic_density * 15.0;
+ score = (semantic_density * 15.0) + (weighted_score * 0.5);
  
- return std::min(10.0, score);
+ return std::min(20.0, score); // Increased for enhanced analysis
+}
+
+// Helper methods for enhanced pattern analysis
+double HybridNeoJ4Optimizer::analyze_pattern_context_coherence(const std::string& code, 
+    const std::vector<std::pair<std::string, double>>& patterns) {
+ double coherence_score = 0.0;
+ 
+ // Analyze how patterns relate to each other within context windows
+ const size_t context_window = 200; // Character window for context analysis
+ 
+ for (size_t i = 0; i < code.length(); i += context_window) {
+ std::string context = code.substr(i, context_window);
+ size_t patterns_in_context = 0;
+ 
+ for (const auto& [pattern, weight] : patterns) {
+ if (context.find(pattern) != std::string::npos) {
+ patterns_in_context++;
+ }
+ }
+ 
+ // Bonus for multiple related patterns in same context
+ if (patterns_in_context > 1) {
+ coherence_score += (patterns_in_context - 1) * 1.5;
+ }
+ }
+ 
+ return std::min(10.0, coherence_score);
+}
+
+double HybridNeoJ4Optimizer::analyze_pattern_co_occurrence(const std::string& code,
+    const std::vector<std::pair<std::string, double>>& patterns) {
+ double co_occurrence_score = 0.0;
+ 
+ // Track which patterns appear together frequently
+ static std::map<std::pair<std::string, std::string>, uint64_t> co_occurrence_map;
+ 
+ for (size_t i = 0; i < patterns.size(); ++i) {
+ for (size_t j = i + 1; j < patterns.size(); ++j) {
+ const auto& pattern1 = patterns[i].first;
+ const auto& pattern2 = patterns[j].first;
+ 
+ if (code.find(pattern1) != std::string::npos && 
+     code.find(pattern2) != std::string::npos) {
+ 
+ auto key = std::make_pair(std::min(pattern1, pattern2), 
+                          std::max(pattern1, pattern2));
+ co_occurrence_map[key]++;
+ 
+ // Adaptive bonus based on co-occurrence frequency
+ if (co_occurrence_map[key] > 5) {
+ double frequency_multiplier = std::log(co_occurrence_map[key]) * 0.3;
+ co_occurrence_score += frequency_multiplier;
+ }
+ }
+ }
+ }
+ 
+ return std::min(8.0, co_occurrence_score);
 }
 
 double HybridNeoJ4Optimizer::analyze_revolutionary_patterns(const std::string& code) {
